@@ -1,0 +1,16 @@
+' *** runwiseFX EA Configuration File V2 (product info: www.runwisefx.com) ***
+[config]
+Display_panelAutoMode=0
+Display_panelOther=0
+Display_panelPending=1
+SingleTradeOnSignalInMultiTradeMode=1
+Indi_showDailyPivot=0
+Indi_showWeeklyPivot=0
+Indi_showMonthlyPivot=0
+Indi_showSupportResistance=0
+Indi_showSupportResistance=0
+Display_askBid=0
+Box_X=60
+Box_Y=0
+Box_corner=CORNER_LEFT_LOWER
+
