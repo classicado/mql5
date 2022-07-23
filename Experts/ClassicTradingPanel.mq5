@@ -292,7 +292,7 @@ void OnChartEvent(const int id,         // event ID
       double price;
       int subwindow;
       ChartXYToTimePrice(0,lparam,dparam,subwindow,time,price);
-      Print(" Subwindow: ",IntegerToString(subwindow)," Time: ",TimeToString(time,TIME_SECONDS)," Price: ",DoubleToString(price));
+  //    Print(" Subwindow: ",IntegerToString(subwindow)," Time: ",TimeToString(time,TIME_SECONDS)," Price: ",DoubleToString(price));
         
      } 
 //--- the mouse has been clicked on the graphic object 
@@ -301,6 +301,84 @@ void OnChartEvent(const int id,         // event ID
       //Print("The mouse has been clicked on the object with name '"+sparam+"'"); 
      }
 
+
+
+
+
+
+//--- Show the event parameters on the chart 
+   Comment(__FUNCTION__,": id=",id," lparam=",lparam," dparam=",dparam," sparam=",sparam); 
+//--- If this is an event of a mouse click on the chart 
+   if(id==CHARTEVENT_CLICK) 
+   //if(id==CHARTEVENT_OBJECT_DRAG) 
+     { 
+      //--- Prepare variables 
+      int      x     =(int)lparam; 
+      int      y     =(int)dparam; 
+      datetime dt    =0; 
+      double   price =0; 
+      int      window=0; 
+      //--- Convert the X and Y coordinates in terms of date/time 
+      if(ChartXYToTimePrice(0,x,y,window,dt,price)) 
+        { 
+         PrintFormat("Window=%d X=%d  Y=%d  =>  Time=%s  Price=%G",window,x,y,TimeToString(dt),price); 
+         //--- Perform reverse conversion: (X,Y) => (Time,Price) 
+         if(ChartTimePriceToXY(0,window,dt,price,x,y)) 
+            PrintFormat("Time=%s  Price=%G  =>  X=%d  Y=%d",TimeToString(dt),price,x,y); 
+         else 
+            Print("ChartTimePriceToXY return error code: ",GetLastError()); 
+            
+         //--- delete lines  
+         ObjectDelete(0,"H Line TP"); 
+         ObjectDelete(0,"H Line"); 
+         ObjectDelete(0,"H Line SL");  
+         
+         ObjectCreate(0,"H Line TP",OBJ_HLINE,window,dt,price + 20.00); 
+         ObjectCreate(0,"H Line",OBJ_HLINE,window,dt,price); 
+         ObjectCreate(0,"H Line SL",OBJ_HLINE,window,dt,price-20.00); 
+         
+         ObjectSetInteger(0,"H Line TP",OBJPROP_COLOR,Blue);
+         ObjectSetInteger(0,"H Line",OBJPROP_COLOR,Green);
+         ObjectSetInteger(0,"H Line SL",OBJPROP_COLOR,Red);
+         ChartRedraw(0); 
+        } 
+      else 
+         Print("ChartXYToTimePrice return error code: ",GetLastError()); 
+      Print("+--------------------------------------------------------------+"); 
+     } 
+  
+    if(id==CHARTEVENT_OBJECT_DRAG) 
+     { 
+      //--- Prepare variables 
+      int      x     =(int)lparam; 
+      int      y     =(int)dparam; 
+      datetime dt    =0; 
+      double   price =0; 
+      int      window=0; 
+      //--- Convert the X and Y coordinates in terms of date/time 
+      if(ChartXYToTimePrice(0,x,y,window,dt,price)) 
+        { 
+         PrintFormat("Window=%d X=%d  Y=%d  =>  Time=%s  Price=%G",window,x,y,TimeToString(dt),price); 
+         
+         //--- Perform reverse conversion: (X,Y) => (Time,Price) 
+         if(ChartTimePriceToXY(0,window,dt,price,x,y)) 
+            PrintFormat("Time=%s  Price=%G  =>  X=%d  Y=%d",TimeToString(dt),price,x,y); 
+         else 
+            Print("ChartTimePriceToXY return error code: ",GetLastError()); 
+            
+         //--- delete lines  
+         //ObjectDelete(0,"HH Line"); 
+         //--- create horizontal and vertical lines of the crosshair 
+         ObjectCreate(0,"HH Line",OBJ_HLINE,window,dt,price);  
+         ChartRedraw(0); 
+        } 
+      else 
+         Print("ChartXYToTimePrice return error code: ",GetLastError()); 
+      Print("+---------------------DRAGEDD-----------------------------------------+"); 
+     } 
+
+
+	 
         
   }
 //+------------------------------------------------------------------+
