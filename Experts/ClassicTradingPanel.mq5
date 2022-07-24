@@ -85,7 +85,10 @@ public:
                     ~CAppWindowTwoButtons(void);
    //--- create
    virtual bool      Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2);
-   bool              UpdateForm(string ask,string bid,string spread);
+   virtual void      SetPositionPrice(double price);
+   bool              UpdateForm();
+   double            GetTakeProfitPrice(double price);
+   double            GetStopLossPrice(double price);
    //--- chart event handler
    virtual bool      OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
 
@@ -321,30 +324,32 @@ void OnChartEvent(const int id,         // event ID
       //--- Convert the X and Y coordinates in terms of date/time 
       if(ChartXYToTimePrice(0,x,y,window,dt,price)) 
         { 
-         PrintFormat("Window=%d X=%d  Y=%d  =>  Time=%s  Price=%G",window,x,y,TimeToString(dt),price); 
+      /*   PrintFormat("Window=%d X=%d  Y=%d  =>  Time=%s  Price=%G",window,x,y,TimeToString(dt),price); 
          //--- Perform reverse conversion: (X,Y) => (Time,Price) 
          if(ChartTimePriceToXY(0,window,dt,price,x,y)) 
             PrintFormat("Time=%s  Price=%G  =>  X=%d  Y=%d",TimeToString(dt),price,x,y); 
          else 
             Print("ChartTimePriceToXY return error code: ",GetLastError()); 
-            
+            */
          //--- delete lines  
          ObjectDelete(0,"H Line TP"); 
          ObjectDelete(0,"H Line"); 
          ObjectDelete(0,"H Line SL");  
-         
-         ObjectCreate(0,"H Line TP",OBJ_HLINE,window,dt,price + 20.00); 
+ 
+         ObjectCreate(0,"H Line TP",OBJ_HLINE,window,dt, ExtDialog.GetTakeProfitPrice(price)); 
          ObjectCreate(0,"H Line",OBJ_HLINE,window,dt,price); 
-         ObjectCreate(0,"H Line SL",OBJ_HLINE,window,dt,price-20.00); 
-         
+         ObjectCreate(0,"H Line SL",OBJ_HLINE,window,dt,ExtDialog.GetStopLossPrice(price));   
+         ExtDialog.SetPositionPrice(price); 
+       
          ObjectSetInteger(0,"H Line TP",OBJPROP_COLOR,Blue);
          ObjectSetInteger(0,"H Line",OBJPROP_COLOR,Green);
          ObjectSetInteger(0,"H Line SL",OBJPROP_COLOR,Red);
          ChartRedraw(0); 
+ 
         } 
-      else 
+      /*else 
          Print("ChartXYToTimePrice return error code: ",GetLastError()); 
-      Print("+--------------------------------------------------------------+"); 
+      Print("+--------------------------------------------------------------+"); */
      } 
   
     if(id==CHARTEVENT_OBJECT_DRAG) 
@@ -386,9 +391,8 @@ void OnChartEvent(const int id,         // event ID
 //+------------------------------------------------------------------+
 void OnTick()
   {
-    //m_label.SetText(SYMBOL_ASK);
-    //double Spread = SYMBOL_ASK - SYMBOL_BID;
-   ExtDialog.UpdateForm( NormalizeDouble(SYMBOL_ASK,4), DoubleToString(SYMBOL_BID,4), NormalizeDouble(SYMBOL_SPREAD,4) ); /* displayed in the control */
+     
+   ExtDialog.UpdateForm();  
 
 
   }
@@ -1191,8 +1195,8 @@ void CAppWindowTwoButtons::OnClickButtonBuyLimit(void)
    double price = 138.985;
 
 
-   Stoploss = StringToInteger(m_editStopLossPoints.Text());;
-   Takeprofit = StringToInteger(m_editTakeProfitPoints.Text());; 
+   Stoploss = StringToInteger(m_editStopLossPoints.Text());
+   Takeprofit = StringToInteger(m_editTakeProfitPoints.Text()); 
    numberOfOrders = StringToInteger(m_editOrders.Text());
    Lots = StringToDouble(m_editLots.Text());
    price = StringToDouble( m_edit.Text());
@@ -1272,7 +1276,7 @@ void CAppWindowTwoButtons::OnClickLabelBID(void)
 //+------------------------------------------------------------------+
 //| Event handler                                                    |
 //+------------------------------------------------------------------+
-bool CAppWindowTwoButtons::UpdateForm(string ask,string bid,string spread)
+bool CAppWindowTwoButtons::UpdateForm()
   {
 
 
@@ -1292,11 +1296,46 @@ bool CAppWindowTwoButtons::UpdateForm(string ask,string bid,string spread)
    return(true);
  
   }   
-  
-  
-  
-  
-  
+//+------------------------------------------------------------------+ 
+//+------------------------------------------------------------------+
+//| Event handler                                                    |
+//+------------------------------------------------------------------+
+void CAppWindowTwoButtons::SetPositionPrice(double price)
+  {
+
+      m_edit.Text(price);
+      m_editTakeProfitPrice.Text(GetTakeProfitPrice(price));
+      m_editStopLossPrice.Text(GetStopLossPrice(price)); 
+     
+ 
+  }   
+//+------------------------------------------------------------------+ 
+//+------------------------------------------------------------------+
+//| Event handler                                                    |
+//+------------------------------------------------------------------+
+double CAppWindowTwoButtons::GetTakeProfitPrice(double price)
+  { 
+      double p = 0.00;
+      if( price > SymbolInfoDouble(Symbol(),SYMBOL_BID) ){  //BUY LIMIT
+            p = price + StringToInteger(m_editTakeProfitPoints.Text()) *_Point;
+      }else{
+            p = price - StringToInteger(m_editTakeProfitPoints.Text()) *_Point;
+      }
+
+      return p;
+  }   
+double CAppWindowTwoButtons::GetStopLossPrice(double price)
+  { 
+      double p = 0.00;
+      if( price < SymbolInfoDouble(Symbol(),SYMBOL_ASK) ){  //BUY LIMIT
+            p = price + StringToInteger(m_editStopLossPoints.Text()) *_Point;
+      }else{
+            p = price - StringToInteger(m_editStopLossPoints.Text()) *_Point;
+      }
+
+      return p;
+  }   
+    
   
   
   
