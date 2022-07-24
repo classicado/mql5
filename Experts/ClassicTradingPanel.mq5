@@ -86,9 +86,14 @@ public:
    //--- create
    virtual bool      Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2);
    virtual void      SetPositionPrice(double price);
+   double            GetPositionPrice();
+   
    bool              UpdateForm();
    double            GetTakeProfitPrice(double price);
+   void              SetTakeProfitPrice(double price); 
+   
    double            GetStopLossPrice(double price);
+   void              SetStopLossPrice(double price);   
    //--- chart event handler
    virtual bool      OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
 
@@ -254,6 +259,7 @@ bool CAppWindowTwoButtons::Create(const long chart,const string name,const int s
 //+------------------------------------------------------------------+
 CAppWindowTwoButtons ExtDialog;
 bool inPriceSelectionMode;
+bool riskManagementMode;
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -319,46 +325,63 @@ void OnChartEvent(const int id,         // event ID
    //if(id==CHARTEVENT_OBJECT_DRAG) 
      { 
 
-
-      if( inPriceSelectionMode){
-
-
-      //--- Prepare variables 
-      int      x     =(int)lparam; 
-      int      y     =(int)dparam; 
-      datetime dt    =0; 
-      double   price =0; 
-      int      window=0; 
-      //--- Convert the X and Y coordinates in terms of date/time 
-      if(ChartXYToTimePrice(0,x,y,window,dt,price)) 
-        { 
-      /*   PrintFormat("Window=%d X=%d  Y=%d  =>  Time=%s  Price=%G",window,x,y,TimeToString(dt),price); 
-         //--- Perform reverse conversion: (X,Y) => (Time,Price) 
-         if(ChartTimePriceToXY(0,window,dt,price,x,y)) 
-            PrintFormat("Time=%s  Price=%G  =>  X=%d  Y=%d",TimeToString(dt),price,x,y); 
-         else 
-            Print("ChartTimePriceToXY return error code: ",GetLastError()); 
-            */
-         //--- delete lines  
-         ObjectDelete(0,"H Line TP"); 
-         ObjectDelete(0,"H Line"); 
-         ObjectDelete(0,"H Line SL");  
- 
-         ObjectCreate(0,"H Line TP",OBJ_HLINE,window,dt, ExtDialog.GetTakeProfitPrice(price)); 
-         ObjectCreate(0,"H Line",OBJ_HLINE,window,dt,price); 
-         ObjectCreate(0,"H Line SL",OBJ_HLINE,window,dt,ExtDialog.GetStopLossPrice(price));   
-         ExtDialog.SetPositionPrice(price); 
+         //--- Prepare variables 
+         int      x     =(int)lparam; 
+         int      y     =(int)dparam; 
+         datetime dt    =0; 
+         double   price =0; 
+         int      window=0; 
+         if(ChartXYToTimePrice(0,x,y,window,dt,price)) 
+         {     
+            if( inPriceSelectionMode == true && riskManagementMode == false){
        
-         ObjectSetInteger(0,"H Line TP",OBJPROP_COLOR,Blue);
-         ObjectSetInteger(0,"H Line",OBJPROP_COLOR,Green);
-         ObjectSetInteger(0,"H Line SL",OBJPROP_COLOR,Red);
-         ChartRedraw(0); 
- 
-        } 
-      /*else 
-         Print("ChartXYToTimePrice return error code: ",GetLastError()); 
-      Print("+--------------------------------------------------------------+"); */
-         }
+               //--- Convert the X and Y coordinates in terms of date/time 
+               
+               /*   PrintFormat("Window=%d X=%d  Y=%d  =>  Time=%s  Price=%G",window,x,y,TimeToString(dt),price); 
+                  //--- Perform reverse conversion: (X,Y) => (Time,Price) 
+                  if(ChartTimePriceToXY(0,window,dt,price,x,y)) 
+                     PrintFormat("Time=%s  Price=%G  =>  X=%d  Y=%d",TimeToString(dt),price,x,y); 
+                  else 
+                     Print("ChartTimePriceToXY return error code: ",GetLastError()); 
+                     */
+                  //--- delete lines  
+                  ObjectDelete(0,"H Line TP"); 
+                  ObjectDelete(0,"H Line"); 
+                  ObjectDelete(0,"H Line SL");  
+          
+                  ObjectCreate(0,"H Line TP",OBJ_HLINE,window,dt, ExtDialog.GetTakeProfitPrice(price)); 
+                  ObjectCreate(0,"H Line",OBJ_HLINE,window,dt,price); 
+                  ObjectCreate(0,"H Line SL",OBJ_HLINE,window,dt,ExtDialog.GetStopLossPrice(price));   
+                  ExtDialog.SetPositionPrice(price); 
+                
+                  ObjectSetInteger(0,"H Line TP",OBJPROP_COLOR,Blue);
+                  ObjectSetInteger(0,"H Line",OBJPROP_COLOR,Green);
+                  ObjectSetInteger(0,"H Line SL",OBJPROP_COLOR,Red);
+                  ChartRedraw(0); 
+           
+            }else if(  inPriceSelectionMode == true && riskManagementMode == true){
+            
+                  if( price < ExtDialog.GetPositionPrice() ){
+                     ObjectDelete(0,"H Line SL"); 
+                     ObjectCreate(0,"H Line SL",OBJ_HLINE,window,dt,price);  
+                     ObjectSetInteger(0,"H Line SL",OBJPROP_COLOR,Red);   
+                     ExtDialog.SetStopLossPrice(price);               
+                  }else if( price > ExtDialog.GetPositionPrice() ){
+                     ObjectDelete(0,"H Line TP"); 
+                     ObjectCreate(0,"H Line TP",OBJ_HLINE,window,dt,price);  
+                     ObjectSetInteger(0,"H Line TP",OBJPROP_COLOR,Blue);   
+                     ExtDialog.SetTakeProfitPrice(price);                
+                  }
+
+                  ChartRedraw(0); 
+                  
+            }
+         } 
+         /*else 
+            Print("ChartXYToTimePrice return error code: ",GetLastError()); 
+         Print("+--------------------------------------------------------------+"); */
+         
+          
      } 
   
     if(id==CHARTEVENT_OBJECT_DRAG) 
@@ -401,6 +424,13 @@ void OnChartEvent(const int id,         // event ID
 
       if (lparam == 'P' || lparam == 'P') {
          inPriceSelectionMode = !inPriceSelectionMode;
+         
+         if(inPriceSelectionMode == false)
+            riskManagementMode = false;  //Clear risk management mode if not in select mode
+      }else if (lparam == 'L' || lparam == 'l') {
+      
+         if(inPriceSelectionMode)
+            riskManagementMode = !riskManagementMode;
       }
 
 
@@ -1367,9 +1397,21 @@ double CAppWindowTwoButtons::GetStopLossPrice(double price)
       return p;
   }   
     
-  
-  
-  
+void CAppWindowTwoButtons::SetStopLossPrice(double price)
+  { 
+      m_editStopLossPrice.Text(price);
+      //TODO: calculate the point and populate points field
+  }     
+void CAppWindowTwoButtons::SetTakeProfitPrice(double price)
+  { 
+      m_editTakeProfitPrice.Text(price);
+      //TODO: calculate the point and populate points field
+  }     
+double CAppWindowTwoButtons::GetPositionPrice()
+  {  
+      return StringToDouble(m_edit.Text());
+  }   
+     
   
   
   
