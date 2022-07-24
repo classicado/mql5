@@ -253,6 +253,7 @@ bool CAppWindowTwoButtons::Create(const long chart,const string name,const int s
 //| Global Variable                                                  |
 //+------------------------------------------------------------------+
 CAppWindowTwoButtons ExtDialog;
+bool inPriceSelectionMode;
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -263,6 +264,8 @@ int OnInit()
       return(INIT_FAILED);
 //--- run application
    ExtDialog.Run();
+
+   inPriceSelectionMode = false;
 //--- succeed
    return(INIT_SUCCEEDED);
   }
@@ -315,6 +318,11 @@ void OnChartEvent(const int id,         // event ID
    if(id==CHARTEVENT_CLICK) 
    //if(id==CHARTEVENT_OBJECT_DRAG) 
      { 
+
+
+      if( inPriceSelectionMode){
+
+
       //--- Prepare variables 
       int      x     =(int)lparam; 
       int      y     =(int)dparam; 
@@ -350,6 +358,7 @@ void OnChartEvent(const int id,         // event ID
       /*else 
          Print("ChartXYToTimePrice return error code: ",GetLastError()); 
       Print("+--------------------------------------------------------------+"); */
+         }
      } 
   
     if(id==CHARTEVENT_OBJECT_DRAG) 
@@ -381,6 +390,22 @@ void OnChartEvent(const int id,         // event ID
          Print("ChartXYToTimePrice return error code: ",GetLastError()); 
       Print("+---------------------DRAGEDD-----------------------------------------+"); 
      } 
+
+
+
+
+
+
+ if(id==CHARTEVENT_KEYDOWN)
+     {
+
+      if (lparam == 'P' || lparam == 'P') {
+         inPriceSelectionMode = !inPriceSelectionMode;
+      }
+
+
+      
+     }
 
 
 	 
