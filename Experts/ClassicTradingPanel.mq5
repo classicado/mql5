@@ -1396,23 +1396,23 @@ double CAppWindowTwoButtons::GetStopLossPrice(double price)
 
       return p;
   }   
-    
-void CAppWindowTwoButtons::SetStopLossPrice(double price)
-  { 
-      m_editStopLossPrice.Text(price);
-      //TODO: calculate the point and populate points field
-  }     
-void CAppWindowTwoButtons::SetTakeProfitPrice(double price)
-  { 
-      m_editTakeProfitPrice.Text(price);
-      //TODO: calculate the point and populate points field
-  }     
 double CAppWindowTwoButtons::GetPositionPrice()
   {  
       return StringToDouble(m_edit.Text());
   }   
-     
-  
+         
+   
+void CAppWindowTwoButtons::SetTakeProfitPrice(double price)
+  { 
+      m_editTakeProfitPrice.Text(price); 
+      m_editTakeProfitPoints.Text( MathAbs(( GetPositionPrice() - price ) / _Point ));  
+  }     
+
+void CAppWindowTwoButtons::SetStopLossPrice(double price)
+  { 
+      m_editStopLossPrice.Text(price); 
+      m_editStopLossPoints.Text(  MathAbs(( GetPositionPrice() - price ) / _Point )); 
+  }    
   
   
   
