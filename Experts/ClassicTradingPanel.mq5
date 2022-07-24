@@ -1221,6 +1221,12 @@ void CAppWindowTwoButtons::OnClickButtonSellLimit(void)
    int numberOfOrders = 5;
    double price = 136.685;
  
+   Stoploss = StringToInteger(m_editStopLossPoints.Text());
+   Takeprofit = StringToInteger(m_editTakeProfitPoints.Text()); 
+   numberOfOrders = StringToInteger(m_editOrders.Text());
+   Lots = StringToDouble(m_editLots.Text());
+   price = StringToDouble( m_edit.Text());
+
    double SL = price + Stoploss*_Point;  
    double TP = price - Takeprofit*_Point;  
    
