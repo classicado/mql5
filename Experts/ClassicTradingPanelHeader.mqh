@@ -79,6 +79,7 @@ private:
    CLabel            m_labelBID;                         // CLabel object
    CLabel            m_labelSPREAD;                         // CLabel object
    CLabel            m_labelASK;                         // CLabel object
+   CLabel            m_labelPositionType;                         // CLabel object
 
 public:
                      CAppWindowTwoButtons(void);
@@ -127,6 +128,7 @@ protected:
    bool              CreateLabelBID(void);
    bool              CreateLabelSPREAD(void);
    bool              CreateLabelASK(void);
+   bool              CreateLabelPositionType(void);   
 
    //--- handlers of the dependent controls events
    void              OnClickButtonBuy(void);
@@ -235,6 +237,8 @@ bool CAppWindowTwoButtons::Create(const long chart,const string name,const int s
    if(!CreateLabelSPREAD())
       return(false);
    if(!CreateLabelASK())
+      return(false);
+   if(!CreateLabelPositionType())
       return(false);
 
 //--- succeed
@@ -699,7 +703,7 @@ bool CAppWindowTwoButtons::CreateEditLabelTakeProfitPoints(void)
    if(!m_editTakeProfitPoints.Create(m_chart_id,m_name+"EditTakeProfitPoints",m_subwin,x1 + 100,y1,x2+100,y2))
       return(false);
 //--- allow editing the content
-    if(!m_editTakeProfitPoints.Text("50"))
+    if(!m_editTakeProfitPoints.Text("100"))
       return(false);
    if(!m_editTakeProfitPoints.ReadOnly(false))
       return(false);
@@ -786,7 +790,7 @@ bool CAppWindowTwoButtons::CreateEditLabelStopLossPoints(void)
    if(!m_editStopLossPoints.Create(m_chart_id,m_name+"EditStopLossPoints",m_subwin,x1 + 100,y1,x2+100,y2))
       return(false);
 //--- allow editing the content
-   if(!m_editStopLossPoints.Text("100"))
+   if(!m_editStopLossPoints.Text("50"))
       return(false);
    if(!m_editStopLossPoints.ReadOnly(false))
       return(false);
@@ -877,7 +881,26 @@ bool CAppWindowTwoButtons::CreateLabelASK(void)
    return(true);
   }  
 
-
+ //+------------------------------------------------------------------+
+//| Create the "CLabel"                                              |
+//+------------------------------------------------------------------+
+bool CAppWindowTwoButtons::CreateLabelPositionType(void)
+  {
+//--- coordinates
+   int x1=INDENT_LEFT;
+   int y1=INDENT_SYMBOLDETAILS_SECTION_TOP+40;
+   int x2=x1+100;
+   int y2=y1+20;
+//--- create
+   if(!m_labelPositionType.Create(m_chart_id,m_name+"LabelPositionType",m_subwin,x1,y1,x2,y2))
+      return(false);
+   if(!m_labelPositionType.Text("########POSITION TYPE = "))
+      return(false);
+   if(!Add(m_labelPositionType))
+      return(false);
+//--- succeed
+   return(true);
+  } 
 
 
 
@@ -1139,9 +1162,27 @@ bool CAppWindowTwoButtons::UpdateForm()
    if(!m_labelBID.Text("BID="+ SymbolInfoDouble(Symbol(),SYMBOL_BID)))
       return(false);
    if(!m_labelSPREAD.Text("SPREAD="+ SymbolInfoInteger(Symbol(),SYMBOL_SPREAD) ))
-      return(false);
+      return(false); 
 
+double RiskRewardRatio = (GetPositionPrice() - GetStopLossPrice(GetPositionPrice())) / ( GetTakeProfitPrice(GetPositionPrice()) - GetPositionPrice());
+string newTradeInfo = "POSITION TYPE=";
 
+   if( GetPositionPrice() <  SymbolInfoDouble(Symbol(),SYMBOL_ASK)  ){ 
+      newTradeInfo += "BUY LIMIT ";      
+   }else{
+      newTradeInfo += "SELL LIMIT "; 
+   }
+
+   newTradeInfo += " RRR=" +  DoubleToString(RiskRewardRatio,2);
+
+   if( DoubleToString(RiskRewardRatio,2) >= 1.0){
+      newTradeInfo += " Class= BAD";
+   }else{
+      newTradeInfo += " Class= Good";
+   }
+
+   if(!m_labelPositionType.Text(newTradeInfo))
+         return(false);   
    
 //--- succeed
    return(true);
