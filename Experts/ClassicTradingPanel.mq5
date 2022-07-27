@@ -11,8 +11,8 @@
 #include <Trade\PositionInfo.mqh>
 #include <Trade\Trade.mqh>
 #include <Trade\AccountInfo.mqh>
-#include "ClassicTradingPanelHeader.mqh"
-
+#include "ClassicTradingPanelHeader.mqh" 
+#include "Rectangle.mqh"
  
 
 
@@ -127,18 +127,84 @@ void OnChartEvent(const int id,         // event ID
                   ChartRedraw(0); 
            
             }else if(  inPriceSelectionMode == true && riskManagementMode == true){
+   
+   
+   
+   //--- number of visible bars in the chart window
+   int bars=(int)ChartGetInteger(0,CHART_VISIBLE_BARS);
+//--- price array size
+   int accuracy=1000;
+//--- arrays for storing the date and price values to be used
+//--- for setting and changing rectangle anchor points' coordinates
+   datetime date[];
+   double   pprice[];
+//--- memory allocation
+   ArrayResize(date,bars);
+   ArrayResize(pprice,accuracy);
+//--- fill the array of dates
+   ResetLastError();
+   if(CopyTime(Symbol(),Period(),0,bars,date)==-1)
+     {
+      Print("Failed to copy time values! Error code = ",GetLastError());
+      return;
+     }
+//--- fill the array of prices
+//--- find the highest and lowest values of the chart
+   double max_price=ChartGetDouble(0,CHART_PRICE_MAX);
+   double min_price=ChartGetDouble(0,CHART_PRICE_MIN);
+//--- define a change step of a price and fill the array
+   double step=(max_price-min_price)/accuracy;
+   for(int i=0;i<accuracy;i++)
+      pprice[i]=min_price+i*step;
+//--- define points for drawing the rectangle
+   int d1=InpDate1*(bars-1)/100;
+   int d2=InpDate2*(bars-1)/100;
+   int p1=InpPrice1*(accuracy-1)/100;
+   int p2=InpPrice2*(accuracy-1)/100;
+//--- create a rectangle
+   //if(!RectangleCreate(0,InpName,0,date[d1],price[p1],date[d2],price[p2],InpColor,
+
             
                   if( price < ExtDialog.GetPositionPrice() ){
                      ObjectDelete(0,"H Line SL"); 
                      ObjectCreate(0,"H Line SL",OBJ_HLINE,window,dt,price);  
                      ObjectSetInteger(0,"H Line SL",OBJPROP_COLOR,Red);   
-                     ExtDialog.SetStopLossPrice(price);               
+                     ObjectSetInteger(0,"H Line SL",OBJPROP_WIDTH,4);
+                     ExtDialog.SetStopLossPrice(price);   
+                     
+   if(!RectangleCreate(0,"RectangleStopLoss",0,date[d1],ExtDialog.GetPositionPrice(),date[d2],ExtDialog.GetStopLossPrice(),clrRed,
+      InpStyle,InpWidth,InpFill,InpBack,InpSelection,InpHidden,InpZOrder))
+     {
+      return;
+     }
+                                    
                   }else if( price > ExtDialog.GetPositionPrice() ){
                      ObjectDelete(0,"H Line TP"); 
                      ObjectCreate(0,"H Line TP",OBJ_HLINE,window,dt,price);  
                      ObjectSetInteger(0,"H Line TP",OBJPROP_COLOR,Blue);   
-                     ExtDialog.SetTakeProfitPrice(price);                
+                     ObjectSetInteger(0,"H Line TP",OBJPROP_WIDTH,4);  
+                     ExtDialog.SetTakeProfitPrice(price);    
+                     
+   if(!RectangleCreate(0,"RectangleTakeProfit",0,date[d1],ExtDialog.GetPositionPrice(),date[d2],ExtDialog.GetTakeProfitPrice(),clrGreen,
+      InpStyle,InpWidth,InpFill,InpBack,InpSelection,InpHidden,InpZOrder))
+     {
+      return;
+     }
+                                    
                   }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                   ChartRedraw(0); 
                   
@@ -216,6 +282,8 @@ void OnTick()
      
    ExtDialog.UpdateForm();  
 
+   
+  
 
   }
 //+------------------------------------------------------------------+  

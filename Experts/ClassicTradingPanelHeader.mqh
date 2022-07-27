@@ -91,9 +91,11 @@ public:
    
    bool              UpdateForm();
    double            GetTakeProfitPrice(double price);
+   double            GetTakeProfitPrice();
    void              SetTakeProfitPrice(double price); 
    
    double            GetStopLossPrice(double price);
+   double            GetStopLossPrice();
    void              SetStopLossPrice(double price);   
    //--- chart event handler
    virtual bool      OnEvent(const int id,const long &lparam,const double &dparam,const string &sparam);
@@ -1215,7 +1217,11 @@ double CAppWindowTwoButtons::GetTakeProfitPrice(double price)
       }
 
       return p;
-  }   
+  } 
+double CAppWindowTwoButtons::GetTakeProfitPrice()
+  {  
+      return StringToDouble(m_editTakeProfitPrice.Text());
+  }      
 double CAppWindowTwoButtons::GetStopLossPrice(double price)
   { 
       double p = 0.00;
@@ -1226,7 +1232,12 @@ double CAppWindowTwoButtons::GetStopLossPrice(double price)
       }
 
       return p;
-  }   
+  }  
+double CAppWindowTwoButtons::GetStopLossPrice()
+  {  
+      return StringToDouble(m_editStopLossPrice.Text());
+  }  
+
 double CAppWindowTwoButtons::GetPositionPrice()
   {  
       return StringToDouble(m_edit.Text());
