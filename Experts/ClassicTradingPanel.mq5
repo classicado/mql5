@@ -13,7 +13,7 @@
 #include <Trade\AccountInfo.mqh>
 #include "ClassicTradingPanelHeader.mqh" 
 #include "Rectangle.mqh"
- 
+#include "Label.mqh" 
 
 
 
@@ -62,7 +62,7 @@ void OnChartEvent(const int id,         // event ID
   {
    ExtDialog.ChartEvent(id,lparam,dparam,sparam);
 
-
+/*
 //--- the left mouse button has been pressed on the chart 
    if(id==CHARTEVENT_CLICK) 
      { 
@@ -79,14 +79,16 @@ void OnChartEvent(const int id,         // event ID
      { 
       //Print("The mouse has been clicked on the object with name '"+sparam+"'"); 
      }
-
+*/
 
 
 
 
 
 //--- Show the event parameters on the chart 
-   Comment(__FUNCTION__,": id=",id," lparam=",lparam," dparam=",dparam," sparam=",sparam); 
+   Comment(__FUNCTION__,": id=",id," lparam=",lparam," dparam=",dparam," sparam=",sparam 
+            ," TP=",ExtDialog.GetTakeProfitPrice()," P=",ExtDialog.GetPositionPrice()," SL=",ExtDialog.GetStopLossPrice() 
+            ); 
 //--- If this is an event of a mouse click on the chart 
    if(id==CHARTEVENT_CLICK) 
    //if(id==CHARTEVENT_OBJECT_DRAG) 
@@ -98,6 +100,7 @@ void OnChartEvent(const int id,         // event ID
          datetime dt    =0; 
          double   price =0; 
          int      window=0; 
+       
          if(ChartXYToTimePrice(0,x,y,window,dt,price)) 
          {     
             if( inPriceSelectionMode == true && riskManagementMode == false){
@@ -172,11 +175,20 @@ void OnChartEvent(const int id,         // event ID
                      ObjectSetInteger(0,"H Line SL",OBJPROP_WIDTH,4);
                      ExtDialog.SetStopLossPrice(price);   
                      
-   if(!RectangleCreate(0,"RectangleStopLoss",0,date[d1],ExtDialog.GetPositionPrice(),date[d2],ExtDialog.GetStopLossPrice(),clrRed,
+    if(!RectangleCreate(0,"RectangleStopLoss",0,date[d1],ExtDialog.GetPositionPrice(),date[d2],ExtDialog.GetStopLossPrice(),clrRed,
       InpStyle,InpWidth,InpFill,InpBack,InpSelection,InpHidden,InpZOrder))
      {
       return;
-     }
+     } 
+     
+//--- create a text label on the chart
+   LabelDelete(0,"LabelStopLoss");
+   if(!LabelCreate(0,"LabelStopLoss",0,1000,y,CORNER_LEFT_UPPER,"LabelStopLoss",InpFont,InpFontSize,
+      clrWhite,InpAngle,InpAnchor,InpBack,InpSelection,InpHidden,InpZOrder))
+     {
+      return;
+     } 
+     
                                     
                   }else if( price > ExtDialog.GetPositionPrice() ){
                      ObjectDelete(0,"H Line TP"); 
@@ -184,12 +196,20 @@ void OnChartEvent(const int id,         // event ID
                      ObjectSetInteger(0,"H Line TP",OBJPROP_COLOR,Blue);   
                      ObjectSetInteger(0,"H Line TP",OBJPROP_WIDTH,4);  
                      ExtDialog.SetTakeProfitPrice(price);    
-                     
+                    
    if(!RectangleCreate(0,"RectangleTakeProfit",0,date[d1],ExtDialog.GetPositionPrice(),date[d2],ExtDialog.GetTakeProfitPrice(),clrGreen,
       InpStyle,InpWidth,InpFill,InpBack,InpSelection,InpHidden,InpZOrder))
      {
       return;
-     }
+     } 
+     
+//--- create a text label on the chart
+   LabelDelete(0,"LabelTakeProfit");
+   if(!LabelCreate(0,"LabelTakeProfit",0,1000,y,CORNER_LEFT_UPPER,"LabelTakeProfit",InpFont,InpFontSize,
+      clrWhite,InpAngle,InpAnchor,InpBack,InpSelection,InpHidden,InpZOrder))
+     {
+      return;
+     }      
                                     
                   }
 
