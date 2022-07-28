@@ -186,7 +186,7 @@ void OnChartEvent(const int id,         // event ID
    if(!LabelCreate(0,"LabelStopLoss",0,1000,y,CORNER_LEFT_UPPER,
    "ST="+ ExtDialog.GetStopLossPrice() +
    " Points="+ ExtDialog.GetStopLossPoints() +
-   " Pip="+ NormalizeDouble((ExtDialog.GetStopLossPoints()*0.1),0)
+   " Pip="+ (int)NormalizeDouble((ExtDialog.GetStopLossPoints()*0.1),0)
    ,InpFont,InpFontSize,
       clrWhite,InpAngle,InpAnchor,InpBack,InpSelection,InpHidden,InpZOrder))
      {
@@ -212,7 +212,7 @@ void OnChartEvent(const int id,         // event ID
    if(!LabelCreate(0,"LabelTakeProfit",0,1000,y,CORNER_LEFT_UPPER,
    "TP="+ ExtDialog.GetTakeProfitPrice() +
    " Points="+ ExtDialog.GetTakeProfitPoints()+
-   " Pip="+ NormalizeDouble((ExtDialog.GetTakeProfitPoints()*0.1),0)
+   " Pip="+ (int)NormalizeDouble((ExtDialog.GetTakeProfitPoints()*0.1),0)
    ,InpFont,InpFontSize,
       clrWhite,InpAngle,InpAnchor,InpBack,InpSelection,InpHidden,InpZOrder))
      {
