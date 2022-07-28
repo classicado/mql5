@@ -183,7 +183,11 @@ void OnChartEvent(const int id,         // event ID
      
 //--- create a text label on the chart
    LabelDelete(0,"LabelStopLoss");
-   if(!LabelCreate(0,"LabelStopLoss",0,1000,y,CORNER_LEFT_UPPER,"LabelStopLoss",InpFont,InpFontSize,
+   if(!LabelCreate(0,"LabelStopLoss",0,1000,y,CORNER_LEFT_UPPER,
+   "ST="+ ExtDialog.GetStopLossPrice() +
+   " Points="+ ExtDialog.GetStopLossPoints() +
+   " Pip="+ NormalizeDouble((ExtDialog.GetStopLossPoints()*0.1),0)
+   ,InpFont,InpFontSize,
       clrWhite,InpAngle,InpAnchor,InpBack,InpSelection,InpHidden,InpZOrder))
      {
       return;
@@ -205,7 +209,11 @@ void OnChartEvent(const int id,         // event ID
      
 //--- create a text label on the chart
    LabelDelete(0,"LabelTakeProfit");
-   if(!LabelCreate(0,"LabelTakeProfit",0,1000,y,CORNER_LEFT_UPPER,"LabelTakeProfit",InpFont,InpFontSize,
+   if(!LabelCreate(0,"LabelTakeProfit",0,1000,y,CORNER_LEFT_UPPER,
+   "TP="+ ExtDialog.GetTakeProfitPrice() +
+   " Points="+ ExtDialog.GetTakeProfitPoints()+
+   " Pip="+ NormalizeDouble((ExtDialog.GetTakeProfitPoints()*0.1),0)
+   ,InpFont,InpFontSize,
       clrWhite,InpAngle,InpAnchor,InpBack,InpSelection,InpHidden,InpZOrder))
      {
       return;
