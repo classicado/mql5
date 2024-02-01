@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                ArrayFunction.mqh |
-//|                   Copyright 2016-2017, MetaQuotes Software Corp. |
+//|                             Copyright 2000-2024, MetaQuotes Ltd. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #include "CompareFunction.mqh"

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                       windef.mqh |
-//|                        Copyright 2018, MetaQuotes Software Corp. |
+//|                             Copyright 2000-2024, MetaQuotes Ltd. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #define HANDLE                         long
